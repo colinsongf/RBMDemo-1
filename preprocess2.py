@@ -34,7 +34,9 @@ def isContainPorD(s):
     return re.search(r'(\d)', s)
 
 #loop through document list
-for docu in data:
+for index,docu in enumerate(data):
+    if index>4000:
+        break
     content=docu["Content"].lower()
     #remove stop words and digits and punctuations
     removed_tokens = [i for i in tokenizer.tokenize(content) if i not in stopset and not isContainPorD(i)]
@@ -43,55 +45,56 @@ for docu in data:
     #preprocessed texts
     texts.append(tokens)
 
-# num_of_testcase=50# testcase number
-# test_data=texts[:num_of_testcase]
-#
-# input_data=[]
-# extra_data=[]
-# for text in test_data:
-#     # random.shuffle(text)
-#     input_data.append(text[:len(text)/2])
-#     extra_data.append(text[len(text)/2:])
-# train_data=extra_data+texts[num_of_testcase:]
-#
-# dictionary = corpora.Dictionary(texts)
-# #save the dictionary
-# dictionary.save("dict-full1-txt.txt")
-#
-# print(len(dictionary))
-#
-# num_of_unqiuewords=len(dictionary)
-#
-# def normalizing(texts):
-#     linedone = 0#flag to see
-#     wordcounts=[]
-#     for index,text in enumerate(texts):
-#         if (index % 1000 == 0):
-#             linedone += 1
-#             print(linedone)
-#         wordcount = numpy.zeros(num_of_unqiuewords)
-#         for id,counts in dictionary.doc2bow(text):
-#             wordcount[id]=counts
-#         wordcounts.append(wordcount)
-#     # turn our tokenized documents into a id <-> term dictionary
-#     wordcounts=numpy.array(wordcounts)
-#     # print(numpy.size(wordcounts))
-#
-#     #normalization #1 a/sum(row)
-#     for i,row in enumerate(wordcounts):
-#         sumvalue=sum(row)
-#         wordcounts[i]=row/sumvalue
-#     return wordcounts
-#
-# input_data=normalizing(input_data)
-# train_data=normalizing(train_data)
-#
-# file=open("data-full.bin","wb")
-# numpy.savez(file,input_data=input_data,train_data=train_data)
-# file.close()
-#
-# #save input result
-# # newOpenFile=open("processed.txt","w")
-# # for item in wordcounts:
-# #     newOpenFile.write("%s\n" % item)
+
+num_of_testcase=50# testcase number
+test_data=texts[:num_of_testcase]
+
+input_data=[]
+extra_data=[]
+for text in test_data:
+    # random.shuffle(text)
+    input_data.append(text[:len(text)/2])
+    extra_data.append(text[len(text)/2:])
+train_data=extra_data+texts[num_of_testcase:]
+
+dictionary = corpora.Dictionary(texts)
+#save the dictionary
+dictionary.save("wiki-dict-4000-txt.txt")
+
+print(len(dictionary))
+
+num_of_unqiuewords=len(dictionary)
+
+def normalizing(texts):
+    linedone = 0#flag to see
+    wordcounts=[]
+    for index,text in enumerate(texts):
+        if (index % 1000 == 0):
+            linedone += 1
+            print(linedone)
+        wordcount = numpy.zeros(num_of_unqiuewords)
+        for id,counts in dictionary.doc2bow(text):
+            wordcount[id]=counts
+        wordcounts.append(wordcount)
+    # turn our tokenized documents into a id <-> term dictionary
+    wordcounts=numpy.array(wordcounts)
+    # print(numpy.size(wordcounts))
+
+    #normalization #1 a/sum(row)
+    for i,row in enumerate(wordcounts):
+        sumvalue=sum(row)
+        wordcounts[i]=row/sumvalue
+    return wordcounts
+
+input_data=normalizing(input_data)
+train_data=normalizing(train_data)
+
+file=open("data-4000.bin","wb")
+numpy.savez(file,input_data=input_data,train_data=train_data)
+file.close()
+
+#save input result
+# newOpenFile=open("processed.txt","w")
+# for item in wordcounts:
+#     newOpenFile.write("%s\n" % item)
 print ("finish!")

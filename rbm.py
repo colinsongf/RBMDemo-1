@@ -4,9 +4,6 @@ import theano
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
 import time
-import heapq
-import scipy
-
 
 
 class RBM:
@@ -134,8 +131,8 @@ class RBM:
                 # Update weight
                 self.weights += self.learning_rate * ((pos_associations - neg_associations) / num_examples)
 
-                # self.vbias += self.learning_rate * 0.1 * (T.sum(tmpData.T - neg_visible_probs.T,axis=1)/ num_examples)
-                # self.hbias += self.learning_rate * 0.1 *(T.sum(pos_hidden_states.T - neg_hidden_states.T,axis=1)/ num_examples)
+                self.vbias += self.learning_rate * 0.4 * (T.sum(tmpData.T - neg_visible_probs.T,axis=1)/ num_examples)
+                self.hbias += self.learning_rate * 0.4 *(T.sum(pos_hidden_states.T - neg_hidden_states.T,axis=1)/ num_examples)
 
 
             print('Epoch: {0}'.format(epoch))
@@ -150,30 +147,18 @@ class RBM:
         # print (pos_hidden_probs.eval())
         # print (pos_hidden_states.eval())
     #calculate distance between papers
-    def recommend(self,testcase,data,Rank=5):
-        # distance=[]
-        # testState,testHidden=self.getHidden(testcase)
-        # # testHidden.eval()
-        # for d in data:
-        #     tmpState,tmpHidden=self.getHidden(d)
-        #     # tmpHidden.eval()
-        #     gap=(tmpHidden-testHidden)**2
-        #     distance.append(numpy.sqrt(numpy.sum(gap.eval())))
-
-        testState, testHidden = self.getHidden(testcase)
-        tmpState, tmpHidden = self.getHidden(data)
+    def recommend(self,testcase,data,w,hb,Rank=5,):
+        testHidden = self.getHiddenPro(testcase,w,hb)
+        tmpHidden = self.getHiddenPro(data,w,hb)
         gap = (tmpHidden - testHidden) ** 2
-        distance=numpy.sqrt(T.sum(gap,axis=1).eval())
-
-        # # X= theano.shared(value=testcase,name="X",borrow=True)
-        # # Y= theano.shared(value=data, name="Y", borrow=True)
-        # # tmpHidden=self.getHidden(X)
-        # # testHidden=self.getHidden(Y)
-        # # gap=(tmpHidden-testHidden)**2
-        # # f = theano.function([X, Y], gap)
-        # # distance=numpy.sqrt(numpy.sum(f(testcase,data), axis=1))
+        distance=numpy.sqrt(numpy.sum(gap,axis=1))
         ind=numpy.argsort(distance)[:Rank]
         return ind
+
+    def getHiddenPro(self,visible,w,hb):
+        hidden_activations = numpy.dot(visible, w) + hb
+        hidden_probs = 1.0/(1+numpy.exp(-hidden_activations))
+        return hidden_probs
 
 if __name__ == '__main__':
     # print(rbm.weights.get_value())
@@ -188,14 +173,21 @@ if __name__ == '__main__':
 
     vocabulary_num=len(train_data[0])
 
-    topic_num=60
+    topic_num=150
     rbm = RBM(num_visible=vocabulary_num, num_hidden=topic_num)
     rbm.train(train_data, max_epochs=8, batch_size=80,step=1)
+    start = time.clock()
+    w=rbm.weights.eval()
+    hb=rbm.hbias.eval()
+    print (w.shape)
+    print (hb.shape)
+    end = time.clock()
+    print ("time: %f s" % (end - start))
     start = time.clock()
     c10=0
     c5=0
     for i in range(50):
-        ind=rbm.recommend(test_data[i],second_part_data,Rank=10)
+        ind=rbm.recommend(test_data[i],second_part_data,w,hb,Rank=10)
         if i in ind:
             c10+=1
         if i in ind[:5]:

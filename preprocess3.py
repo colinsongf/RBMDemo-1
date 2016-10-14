@@ -77,6 +77,6 @@ def normalizing(texts):
 first_data=normalizing(first_data)
 second_data=normalizing(second_data)
 
-file=open("data/random_testcase_50art2.bin","wb")
+file=open("data/random_testcase_50art.bin","wb")
 numpy.savez(file,first_data=first_data,second_data=second_data)
 file.close()

@@ -10,7 +10,7 @@ import json
 
 # read JSON file
 data_file_name = "Arts.json" #art 17308 docs
-with open(data_file_name, "rb") as datafile:
+with open(data_file_name, encoding="utf-8") as datafile:
     data = json.load(datafile)
 
 #number of documents
@@ -47,12 +47,12 @@ for index,docu in enumerate(data):
 first_data=[]
 second_data=[]
 for text in texts:
-    first_data.append(text[:len(text)/2])
-    second_data.append(text[len(text)/2:])
+    first_data.append(text[:len(text)//2])
+    second_data.append(text[len(text)//2:])
 
 
-#save the dictionary
-dictionary=corpora.Dictionary.load_from_text("dict-full-txt.txt")
+#load the dictionary
+dictionary=corpora.Dictionary.load("processed_dictionary.dict")
 print(len(dictionary))
 
 num_of_unqiuewords=len(dictionary)
@@ -77,6 +77,6 @@ def normalizing(texts):
 first_data=normalizing(first_data)
 second_data=normalizing(second_data)
 
-file=open("random_testcase_50.bin","wb")
+file=open("data/random_testcase_50art2.bin","wb")
 numpy.savez(file,first_data=first_data,second_data=second_data)
 file.close()

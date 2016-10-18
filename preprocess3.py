@@ -9,16 +9,18 @@ import random
 import json
 
 # read JSON file
-data_file_name = "Arts.json" #art 17308 docs
+data_file_name = "Arts.json"
+# data_file_name = "Biology.json"
+# data_file_name = "Engineering.json" #art 17308 docs
 with open(data_file_name, encoding="utf-8") as datafile:
     data = json.load(datafile)
 
 #number of documents
 print (len(data))
 
-num_of_testcase=50# testcase number
+num_of_testcase=150# testcase number
 
-random.shuffle(data)
+#random.shuffle(data)
 data=data[:num_of_testcase]
 print (len(data))
 tokenizer = RegexpTokenizer(r'\w+')
@@ -52,7 +54,7 @@ for text in texts:
 
 
 #load the dictionary
-dictionary=corpora.Dictionary.load("processed_dictionary.dict")
+dictionary=corpora.Dictionary.load("full-dict-3categories.dict")
 print(len(dictionary))
 
 num_of_unqiuewords=len(dictionary)
@@ -77,6 +79,6 @@ def normalizing(texts):
 first_data=normalizing(first_data)
 second_data=normalizing(second_data)
 
-file=open("data/random_testcase_50art.bin","wb")
+file=open("data/random_testcase_150art.bin","wb")
 numpy.savez(file,first_data=first_data,second_data=second_data)
 file.close()
